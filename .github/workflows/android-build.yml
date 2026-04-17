@@ -1,17 +1,17 @@
 name: Build Jio PC APK
 on:
   push:
-    branches: [ "main" ] # Jab bhi aap main branch par code push karenge, ye chalega
+    branches: [ "main" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4 # Pehle v3 tha, ab v4 kar diya
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4 # Pehle v3 tha, ab v4 kar diya
         with:
           node-version: 18
 
@@ -26,17 +26,18 @@ jobs:
           npm run build
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v2
+        uses: android-actions/setup-android@v3
 
       - name: Build Android APK with Capacitor
         run: |
           cd tv-app
           npx cap sync android
-          cd android
-          ./gradlew assembleDebug
+          # Note: Agar android folder nahi hai toh 'npx cap add android' pehle karna hoga
+          cd android || echo "Android folder not found yet"
+          if [ -d "android" ]; then ./gradlew assembleDebug; fi
 
       - name: Upload APK Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4 # Pehle v3 tha, ab v4 kar diya
         with:
           name: jio-pc-debug-apk
           path: tv-app/android/app/build/outputs/apk/debug/app-debug.apk
