@@ -1,0 +1,10 @@
+{
+  "appId": "com.jiopc.custom",
+  "appName": "Jio PC",
+  "webDir": "out",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https",
+    "cleartext": true
+  }
+}
