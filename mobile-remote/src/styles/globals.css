@@ -3,8 +3,9 @@
 @tailwind utilities;
 
 body {
-  background: #020617;
-  overflow: hidden; /* Phone par scroll band karne ke liye */
-  user-select: none;
-  touch-action: none;
+  background-color: #020617; /* Deep dark blue */
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  touch-action: none; /* Phone par scroll rokne ke liye */
 }
