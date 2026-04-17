@@ -23,17 +23,23 @@ jobs:
       - name: Build Next.js Static Export
         run: |
           cd tv-app
+          # Ye command index.html aur out folder generate karegi
           npm run build
 
-      - name: Add Android Platform
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Add and Sync Android Platform
         run: |
           cd tv-app
-          npx cap add android
+          # Agar android folder nahi hai toh add karega, warna sirf sync karega
+          npx cap add android || true
           npx cap sync android
 
       - name: Build Android APK
         run: |
           cd tv-app/android
+          # Gradle ko permission dena zaroori hai
           chmod +x gradlew
           ./gradlew assembleDebug
 
