@@ -1,39 +1,72 @@
 import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
+import Trackpad from '../components/Trackpad';
 
 export default function Remote() {
-  const [status, setStatus] = useState('Connecting...');
+  const [socket, setSocket] = useState(null);
+  const [connected, setConnected] = useState(false);
+
+  useEffect(() => {
+    // Yahan baad mein hum apna asli Server URL dalenge
+    const s = io('https://aapka-server-url.com');
+    setSocket(s);
+
+    s.on('connect', () => setConnected(true));
+    s.on('disconnect', () => setConnected(false));
+
+    return () => s.close();
+  }, []);
 
   return (
-    <div className="min-h-screen bg-[#0f172a] text-white flex flex-col items-center p-6 font-sans">
-      {/* Header */}
-      <div className="w-full flex justify-between items-center mb-8">
-        <h1 className="text-xl font-black tracking-tighter text-blue-400">JEMBEE <span className="text-white">REMOTE</span></h1>
-        <div className="px-3 py-1 bg-green-500/20 rounded-full border border-green-500/50">
-          <span className="text-[10px] text-green-400 font-bold">● LIVE</span>
+    <div className="min-h-screen bg-[#020617] text-white flex flex-col p-6 font-sans select-none">
+      {/* Top Bar */}
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-2xl font-black text-blue-500 leading-none">JEMBEE</h1>
+          <p className="text-[10px] text-slate-500 font-bold tracking-[0.2em]">CLOUD REMOTE</p>
+        </div>
+        <div className={`flex items-center gap-2 px-3 py-1 rounded-full border ${connected ? 'border-green-500/30 bg-green-500/10' : 'border-red-500/30 bg-red-500/10'}`}>
+          <div className={`w-2 h-2 rounded-full ${connected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
+          <span className={`text-[10px] font-bold ${connected ? 'text-green-500' : 'text-red-500'}`}>
+            {connected ? 'CONNECTED' : 'OFFLINE'}
+          </span>
         </div>
       </div>
 
-      {/* Main Trackpad Area */}
-      <div className="w-full aspect-square bg-slate-800/50 rounded-3xl border-2 border-white/10 shadow-2xl flex items-center justify-center relative active:bg-slate-700/50 transition-colors">
-        <div className="text-slate-500 text-sm font-medium">TOUCH PAD AREA</div>
-        {/* Iske andar hum baad mein finger movement ka logic dalenge */}
+      {/* Trackpad Section */}
+      <div className="flex-1 flex flex-col justify-center">
+        <p className="text-center text-slate-600 text-[10px] mb-4 tracking-widest uppercase">Glide to move cursor</p>
+        <Trackpad socket={socket} />
       </div>
 
-      {/* Buttons Grid */}
-      <div className="grid grid-cols-2 gap-4 w-full mt-8">
-        <button className="h-24 bg-slate-800 rounded-2xl border border-white/5 active:scale-95 transition-transform shadow-lg font-bold text-lg">LEFT</button>
-        <button className="h-24 bg-slate-800 rounded-2xl border border-white/5 active:scale-95 transition-transform shadow-lg font-bold text-lg text-blue-400">RIGHT</button>
-      </div>
+      {/* Buttons Section */}
+      <div className="mt-8 space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+          <button 
+            onClick={() => socket?.emit('mouse-click', 'left')}
+            className="h-20 bg-slate-900 rounded-2xl border border-white/5 shadow-xl active:scale-95 active:bg-slate-800 transition-all font-bold text-slate-300"
+          >
+            LEFT CLICK
+          </button>
+          <button 
+            onClick={() => socket?.emit('mouse-click', 'right')}
+            className="h-20 bg-slate-900 rounded-2xl border border-white/5 shadow-xl active:scale-95 active:bg-slate-800 transition-all font-bold text-blue-500"
+          >
+            RIGHT CLICK
+          </button>
+        </div>
 
-      {/* Bottom Action */}
-      <div className="w-full mt-6">
-        <button className="w-full h-16 bg-blue-600 rounded-2xl font-black tracking-widest shadow-lg shadow-blue-500/20 active:bg-blue-700">
+        <button 
+          onClick={() => socket?.emit('keyboard-key', 'Enter')}
+          className="w-full h-16 bg-blue-600 hover:bg-blue-500 rounded-2xl font-black tracking-widest text-white shadow-[0_0_20px_rgba(37,99,235,0.3)] active:scale-95 transition-all"
+        >
           OK / ENTER
         </button>
       </div>
 
-      <p className="mt-10 text-slate-500 text-[10px] uppercase tracking-widest">Connected to Jio Cloud PC</p>
+      <p className="text-center text-slate-700 text-[9px] mt-6 tracking-tight">
+        Powered by Jembee OS © 2026
+      </p>
     </div>
   );
 }
