@@ -6,8 +6,8 @@ export default function Remote() {
   const [connected, setConnected] = useState(false);
 
   useEffect(() => {
-    // Abhi ke liye empty, baad mein yahan Render ka URL aayega
-    const s = io('https://your-server-url.com'); 
+    // Render URL yahan update kar diya hai
+    const s = io('https://jio-pc-project.onrender.com'); 
     setSocket(s);
     s.on('connect', () => setConnected(true));
     s.on('disconnect', () => setConnected(false));
@@ -34,12 +34,15 @@ export default function Remote() {
         </div>
       </div>
 
-      {/* Trackpad Area */}
+      {/* Trackpad Area with Calculation */}
       <div 
         className="flex-1 w-full bg-slate-900/40 rounded-[3rem] border-2 border-white/5 shadow-2xl flex items-center justify-center active:border-blue-500/30 transition-all touch-none"
         onTouchMove={(e) => {
           const touch = e.touches[0];
-          sendAction('mouse-move', { x: touch.clientX, y: touch.clientY });
+          // Screen width aur height ke hisaab se % nikalna
+          const x = touch.clientX / window.innerWidth;
+          const y = touch.clientY / window.innerHeight;
+          sendAction('mouse-move', { x, y });
         }}
       >
         <div className="flex flex-col items-center opacity-20">
