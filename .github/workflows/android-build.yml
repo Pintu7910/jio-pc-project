@@ -1,0 +1,42 @@
+name: Build Jio PC APK
+on:
+  push:
+    branches: [ "main" ] # Jab bhi aap main branch par code push karenge, ye chalega
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install TV App Dependencies
+        run: |
+          cd tv-app
+          npm install
+
+      - name: Build Next.js Static Export
+        run: |
+          cd tv-app
+          npm run build
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+
+      - name: Build Android APK with Capacitor
+        run: |
+          cd tv-app
+          npx cap sync android
+          cd android
+          ./gradlew assembleDebug
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: jio-pc-debug-apk
+          path: tv-app/android/app/build/outputs/apk/debug/app-debug.apk
