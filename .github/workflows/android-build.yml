@@ -8,10 +8,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4 # Pehle v3 tha, ab v4 kar diya
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4 # Pehle v3 tha, ab v4 kar diya
+        uses: actions/setup-node@v4
         with:
           node-version: 18
 
@@ -25,19 +25,20 @@ jobs:
           cd tv-app
           npm run build
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Build Android APK with Capacitor
+      - name: Add Android Platform
         run: |
           cd tv-app
+          npx cap add android
           npx cap sync android
-          # Note: Agar android folder nahi hai toh 'npx cap add android' pehle karna hoga
-          cd android || echo "Android folder not found yet"
-          if [ -d "android" ]; then ./gradlew assembleDebug; fi
+
+      - name: Build Android APK
+        run: |
+          cd tv-app/android
+          chmod +x gradlew
+          ./gradlew assembleDebug
 
       - name: Upload APK Artifact
-        uses: actions/upload-artifact@v4 # Pehle v3 tha, ab v4 kar diya
+        uses: actions/upload-artifact@v4
         with:
           name: jio-pc-debug-apk
           path: tv-app/android/app/build/outputs/apk/debug/app-debug.apk
