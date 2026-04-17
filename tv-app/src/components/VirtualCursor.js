@@ -6,28 +6,25 @@ export default function VirtualCursor({ socket }) {
   useEffect(() => {
     if (!socket) return;
 
-    // Mobile se aane wale signal ka naam 'pc-move' rakhein (standard)
-    const handleMove = (data) => {
+    const moveCursor = (data) => {
       setPos(p => ({
-        x: Math.max(0, Math.min(window.innerWidth - 20, p.x + data.dx * 2.5)),
-        y: Math.max(0, Math.min(window.innerHeight - 20, p.y + data.dy * 2.5))
+        // 2.5 speed multiplier hai, ise aap kam-zyada kar sakti hain
+        x: Math.max(0, Math.min(window.innerWidth - 20, p.x + (data.dx || 0) * 2.5)),
+        y: Math.max(0, Math.min(window.innerHeight - 20, p.y + (data.dy || 0) * 2.5))
       }));
     };
 
-    const handleClick = () => {
+    const executeClick = () => {
       const el = document.elementFromPoint(pos.x, pos.y);
       if (el) el.click();
     };
 
-    // Dono common event names check kar lete hain
-    socket.on('pc-move', handleMove);
-    socket.on('tv-move-cursor', handleMove); // Aapka purana event name
-    socket.on('tv-click-execute', handleClick);
+    socket.on('tv-move-cursor', moveCursor);
+    socket.on('tv-click-execute', executeClick);
 
     return () => {
-      socket.off('pc-move', handleMove);
-      socket.off('tv-move-cursor', handleMove);
-      socket.off('tv-click-execute', handleClick);
+      socket.off('tv-move-cursor', moveCursor);
+      socket.off('tv-click-execute', executeClick);
     };
   }, [socket, pos]);
 
