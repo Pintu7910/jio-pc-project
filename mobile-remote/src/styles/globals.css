@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background: #020617;
+  overflow: hidden; /* Phone par scroll band karne ke liye */
+  user-select: none;
+  touch-action: none;
+}
