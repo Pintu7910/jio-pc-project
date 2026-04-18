@@ -7,21 +7,39 @@ const app = express();
 app.use(cors());
 
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: "*" } });
+
+const io = new Server(server, {
+  cors: { origin: "*" }
+});
 
 io.on('connection', (socket) => {
-    socket.on('mouse-move', (data) => {
-        socket.broadcast.emit('tv-move-cursor', data);
-    });
-    socket.on('mouse-click', () => {
-        socket.broadcast.emit('tv-click-execute');
-    });
-    socket.on('keyboard-type', (key) => {
-        socket.broadcast.emit('tv-type-key', key);
-    });
+  console.log("Client connected:", socket.id);
+
+  // 🔥 MOUSE MOVE
+  socket.on('move', (data) => {
+    console.log("MOVE:", data);
+    io.emit('move', data);
+  });
+
+  // 🔥 CLICK
+  socket.on('click', () => {
+    console.log("CLICK");
+    io.emit('click');
+  });
+
+  // 🔥 KEYBOARD
+  socket.on('type', (key) => {
+    console.log("TYPE:", key);
+    io.emit('type', key);
+  });
+
+  socket.on('disconnect', () => {
+    console.log("Disconnected:", socket.id);
+  });
 });
 
 const PORT = 3001;
+
 server.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);
 });
