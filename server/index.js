@@ -8,7 +8,6 @@ app.use(cors());
 
 const server = http.createServer(app);
 
-// CORS setting for Vercel interaction
 const io = new Server(server, {
     cors: {
         origin: "*", 
@@ -17,29 +16,30 @@ const io = new Server(server, {
 });
 
 io.on('connection', (socket) => {
-    console.log('Connected: ' + socket.id);
+    console.log('User Connected: ' + socket.id);
 
-    // Ye event name aapke Trackpad aur VirtualCursor se match hona chahiye
+    // Mouse Movement
     socket.on('tv-move-cursor', (data) => {
-        // console.log("Moving:", data); // Debugging ke liye check kar sakti hain
-        socket.broadcast.emit('tv-move-cursor', data);
+        // io.emit ensures signal reaches EVERYONE
+        io.emit('tv-move-cursor', data); 
     });
 
-    socket.on('mouse-click', () => {
-        socket.broadcast.emit('tv-click-execute');
+    // Mouse Click
+    socket.on('mouse-click', (type) => {
+        io.emit('tv-click-execute', type);
     });
 
+    // Keyboard Input
     socket.on('keyboard-type', (key) => {
-        socket.broadcast.emit('tv-type-key', key);
+        io.emit('tv-type-key', key);
     });
 
     socket.on('disconnect', () => {
-        console.log('Disconnected');
+        console.log('User Disconnected');
     });
 });
 
-// Render ke liye process.env.PORT bahut zaroori hai
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
-    console.log(`Jembee Server is running on port ${PORT}`);
+    console.log(`Jembee Server live on port ${PORT}`);
 });
