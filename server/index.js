@@ -4,48 +4,42 @@ const { Server } = require('socket.io');
 const cors = require('cors');
 
 const app = express();
-
-// CORS enable kar rahe hain taaki different domains se request aa sake
 app.use(cors());
 
 const server = http.createServer(app);
 
+// CORS setting for Vercel interaction
 const io = new Server(server, {
     cors: {
-        origin: "*", // Sabhi origins ko allow karne ke liye
+        origin: "*", 
         methods: ["GET", "POST"]
     }
 });
 
-// Jab koi connect hota hai
 io.on('connection', (socket) => {
-    console.log('A new device connected: ' + socket.id);
+    console.log('Connected: ' + socket.id);
 
-    // 1. Phone se Mouse Movement receive karna aur PC ko bhejna
-    socket.on('mouse-move', (data) => {
-        // broadcast.emit ka matlab hai sender ko chhod kar baki sabko bhejna
-        socket.broadcast.emit('pc-move', data);
+    // Ye event name aapke Trackpad aur VirtualCursor se match hona chahiye
+    socket.on('tv-move-cursor', (data) => {
+        // console.log("Moving:", data); // Debugging ke liye check kar sakti hain
+        socket.broadcast.emit('tv-move-cursor', data);
     });
 
-    // 2. Mouse Click receive karna
-    socket.on('mouse-click', (type) => {
-        console.log('Click event:', type);
-        socket.broadcast.emit('pc-click', type);
+    socket.on('mouse-click', () => {
+        socket.broadcast.emit('tv-click-execute');
     });
 
-    // 3. Keyboard Input receive karna
-    socket.on('keyboard-key', (key) => {
-        socket.broadcast.emit('pc-key', key);
+    socket.on('keyboard-type', (key) => {
+        socket.broadcast.emit('tv-type-key', key);
     });
 
     socket.on('disconnect', () => {
-        console.log('Device disconnected');
+        console.log('Disconnected');
     });
 });
 
-// Port define kar rahe hain (Render/Railway ke liye process.env.PORT zaroori hai)
+// Render ke liye process.env.PORT bahut zaroori hai
 const PORT = process.env.PORT || 3001;
-
 server.listen(PORT, () => {
     console.log(`Jembee Server is running on port ${PORT}`);
 });
